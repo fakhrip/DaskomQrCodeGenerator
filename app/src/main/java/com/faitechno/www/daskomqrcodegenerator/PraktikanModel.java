@@ -10,14 +10,11 @@ public class PraktikanModel {
     private Integer nim;
     @SerializedName("kelas")
     private String kelas;
-    @SerializedName("status")
-    private Integer status;
 
-    public PraktikanModel(String nama, Integer nim, String kelas, Integer status) {
+    public PraktikanModel(String nama, Integer nim, String kelas) {
         this.nama = nama;
         this.nim = nim;
         this.kelas = kelas;
-        this.status = status;
     }
 
     public String getNama() {
@@ -42,13 +39,5 @@ public class PraktikanModel {
 
     public void setKelas(String kelas) {
         this.kelas = kelas;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 }

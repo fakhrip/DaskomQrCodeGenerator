@@ -71,12 +71,13 @@ public class MainActivity extends AppCompatActivity {
                         progressDialog.dismiss();
                         if (response != null && response.body() != null) {
 
-                            CreateQRCode(response.body().get(0).getNim().toString());
-//                            for (int i = 0; i < response.body().size(); i++) {
-//
-//                                //just testing purpose
-//                                Log.d("RESPONSE_CONTENT", response.body().get(i).toString());
-//                            }
+
+                            for (int i = 0; i < response.body().size(); i++) {
+
+                                CreateQRCode(response.body().get(i).getNim().toString());
+                                //just testing purpose
+                                Log.d("RESPONSE_CONTENT", response.body().get(i).toString());
+                            }
 
                             Toast.makeText(MainActivity.this, "All Barcode Successfully Created", Toast.LENGTH_SHORT).show();
                         }
