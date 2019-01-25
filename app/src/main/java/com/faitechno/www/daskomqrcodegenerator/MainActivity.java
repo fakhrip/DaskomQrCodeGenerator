@@ -68,17 +68,18 @@ public class MainActivity extends AppCompatActivity {
                 call.enqueue(new Callback<List<PraktikanModel>>() {
                     @Override
                     public void onResponse(@Nullable Call<List<PraktikanModel>> call, @Nullable Response<List<PraktikanModel>> response) {
-                        progressDialog.dismiss();
-                        if (response != null && response.body() != null) {
 
+                        if (response != null && response.body() != null) {
 
                             for (int i = 0; i < response.body().size(); i++) {
 
-                                CreateQRCode(response.body().get(i).getNim().toString());
+                                PraktikanModel praktikanModel = response.body().get(i);
+                                CreateQRCode(praktikanModel.getNim().toString(), praktikanModel.getNama(), praktikanModel.getKelas(), path);
                                 //just testing purpose
                                 Log.d("RESPONSE_CONTENT", response.body().get(i).toString());
                             }
 
+                            progressDialog.dismiss();
                             Toast.makeText(MainActivity.this, "All Barcode Successfully Created", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void CreateQRCode(String qrCodeData){
+    public void CreateQRCode(String qrCodeData, String nim, String kelas, String newPath){
 
         int size = 1000;
 
@@ -147,7 +148,8 @@ public class MainActivity extends AppCompatActivity {
 
             Bitmap overlay = BitmapFactory.decodeResource(getResources(), R.drawable.daskom);
 
-            saveImage(mergeBitmaps(overlay,bitmap), qrCodeData, path);
+            newPath = newPath+"/"+kelas;
+            saveImage(addBorderToBitmap(mergeBitmaps(overlay,bitmap), 10, BLACK), qrCodeData, newPath, nim);
 
         } catch (Exception er){
             Log.e("QrGenerate",er.getMessage());
@@ -166,16 +168,19 @@ public class MainActivity extends AppCompatActivity {
 
         canvas.drawBitmap(bitmap, new Matrix(), null);
 
-        int centreX = (int) ((canvasWidth  - overlay.getWidth()*0.2) /2);
-        int centreY = (int) ((canvasHeight - overlay.getHeight()*0.2) /2);
-        canvas.drawBitmap(Bitmap.createScaledBitmap(overlay,(int)(overlay.getWidth()*0.2), (int)(overlay.getHeight()*0.2), true), centreX, centreY, null);
+        int centreX = (int) ((canvasWidth  - overlay.getWidth()*0.22) /2);
+        int centreY = (int) ((canvasHeight - overlay.getHeight()*0.22) /2);
+        canvas.drawBitmap(Bitmap.createScaledBitmap(overlay,(int)(overlay.getWidth()*0.22), (int)(overlay.getHeight()*0.22), true), centreX, centreY, null);
 
         return combined;
     }
 
-    void saveImage(Bitmap originalBitmap, String nim, String path) {
+    void saveImage(Bitmap originalBitmap, String nim, String path, String nama) {
         File myDir = new File(path);
-        String fname = "Image-"+ nim +".jpg";
+        if (!myDir.exists()) {
+            myDir.mkdir();
+        }
+        String fname = nama.toUpperCase() + "-" + nim + ".jpg";
         File file = new File (myDir, fname);
         if (file.exists ()) file.delete ();
         try {
@@ -189,10 +194,8 @@ public class MainActivity extends AppCompatActivity {
             paint.setTextSize(12); // Text Size
             paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)); // Text Overlapping Pattern
             paint.setAntiAlias(true);
-            // some more settings...
 
             canvas.drawBitmap(originalBitmap, 0, 0, paint);
-            canvas.drawText(nim, 10, 10, paint);
             // NEWLY ADDED CODE ENDS HERE ]
 
             originalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
@@ -201,5 +204,48 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    protected Bitmap addBorderToBitmap(Bitmap srcBitmap, int borderWidth, int borderColor){
+        // Initialize a new Bitmap to make it bordered bitmap
+        Bitmap dstBitmap = Bitmap.createBitmap(
+                srcBitmap.getWidth() + borderWidth*2, // Width
+                srcBitmap.getHeight() + borderWidth*2, // Height
+                Bitmap.Config.ARGB_8888 // Config
+        );
+
+        /*
+            Canvas
+                The Canvas class holds the "draw" calls. To draw something, you need 4 basic
+                components: A Bitmap to hold the pixels, a Canvas to host the draw calls (writing
+                into the bitmap), a drawing primitive (e.g. Rect, Path, text, Bitmap), and a paint
+                (to describe the colors and styles for the drawing).
+        */
+        // Initialize a new Canvas instance
+        Canvas canvas = new Canvas(dstBitmap);
+
+        // Initialize a new Paint instance to draw border
+        Paint paint = new Paint();
+        paint.setColor(borderColor);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(borderWidth);
+        paint.setAntiAlias(true);
+
+        Rect rect = new Rect(
+                borderWidth / 2,
+                borderWidth / 2,
+                canvas.getWidth() - borderWidth / 2,
+                canvas.getHeight() - borderWidth / 2
+        );
+
+        canvas.drawRect(rect,paint);
+
+        // Draw source bitmap to canvas
+        canvas.drawBitmap(srcBitmap, borderWidth, borderWidth, null);
+
+        srcBitmap.recycle();
+
+        // Return the bordered circular bitmap
+        return dstBitmap;
     }
 }
