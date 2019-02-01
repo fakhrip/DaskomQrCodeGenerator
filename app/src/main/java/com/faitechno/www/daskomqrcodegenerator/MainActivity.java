@@ -182,27 +182,28 @@ public class MainActivity extends AppCompatActivity {
         }
         String fname = nama.toUpperCase() + "-" + nim + ".jpg";
         File file = new File (myDir, fname);
-        if (file.exists ()) file.delete ();
-        try {
-            FileOutputStream out = new FileOutputStream(file);
+        if (!file.exists ()){
+            try {
+                FileOutputStream out = new FileOutputStream(file);
 
-            // NEWLY ADDED CODE STARTS HERE [
-            Canvas canvas = new Canvas(originalBitmap);
+                // NEWLY ADDED CODE STARTS HERE [
+                Canvas canvas = new Canvas(originalBitmap);
 
-            Paint paint = new Paint();
-            paint.setColor(Color.RED); // Text Color
-            paint.setTextSize(12); // Text Size
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)); // Text Overlapping Pattern
-            paint.setAntiAlias(true);
+                Paint paint = new Paint();
+                paint.setColor(Color.RED); // Text Color
+                paint.setTextSize(12); // Text Size
+                paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OVER)); // Text Overlapping Pattern
+                paint.setAntiAlias(true);
 
-            canvas.drawBitmap(originalBitmap, 0, 0, paint);
-            // NEWLY ADDED CODE ENDS HERE ]
+                canvas.drawBitmap(originalBitmap, 0, 0, paint);
+                // NEWLY ADDED CODE ENDS HERE ]
 
-            originalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-            out.flush();
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+                originalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
